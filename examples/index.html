@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en" data-theme="glacier" data-appearance="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>glassy-panel-design — worked example</title>
+
+<!-- The palette, inlined as CSS variables. This is the ladder from spec 2 for
+     both palettes and both appearances. glass.css reads these eight variables
+     and paints the material table; it never hard-codes a colour of its own. -->
+<style>
+  :root[data-theme="glacier"][data-appearance="light"] {
+    --gp-canvas: #eef2f4; --gp-paper: #fbfdfe; --gp-input: #fbfdfe;
+    --gp-ink: #16232a; --gp-muted: #48595f; --gp-line: #6d818a;
+    --gp-accent: #116974; --gp-shell: #dfe8ec;
+  }
+  :root[data-theme="glacier"][data-appearance="dark"] {
+    --gp-canvas: #0d1417; --gp-paper: #162024; --gp-input: #1b262b;
+    --gp-ink: #e8f1f4; --gp-muted: #9fb3bb; --gp-line: #647a84;
+    --gp-accent: #45c8bf; --gp-shell: #070c0e;
+  }
+  :root[data-theme="sunstone"][data-appearance="light"] {
+    --gp-canvas: #efe6d8; --gp-paper: #fffdfb; --gp-input: #fffdfb;
+    --gp-ink: #2b2117; --gp-muted: #65584a; --gp-line: #8d7962;
+    --gp-accent: #a04a08; --gp-shell: #ede4d8;
+  }
+  :root[data-theme="sunstone"][data-appearance="dark"] {
+    --gp-canvas: #1b1714; --gp-paper: #262019; --gp-input: #2e2620;
+    --gp-ink: #f6efe6; --gp-muted: #bca894; --gp-line: #87735e;
+    --gp-accent: #e8a33d; --gp-shell: #12100e;
+  }
+</style>
+
+<link rel="stylesheet" href="glass.css">
+
+<!-- Page layout only. This is not part of the material layer. -->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.6; }
+  h1, h2, h3 { font-weight: 400; letter-spacing: -0.01em; line-height: 1.18; margin: 0; }
+  h1 { font-size: 18px; }
+  h2 { font-size: 16.5px; }
+  p { margin: 0; }
+  .bar { position: sticky; top: 0; display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
+  .bar .spacer { flex: 1; }
+  .seg { display: flex; gap: 6px; }
+  .seg button {
+    background: transparent; border: 1px solid var(--gp-edge-soft); color: var(--gp-ink);
+    border-radius: 14px; padding: 4px 10px; font: inherit; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { border-color: var(--gp-accent); color: var(--gp-accent); }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 18px 16px 56px; display: grid; gap: 18px; }
+  .meta { display: flex; align-items: center; gap: 8px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .stack { display: grid; gap: 10px; }
+</style>
+</head>
+<body>
+<div class="gp-shell">
+  <header class="gp-bar bar">
+    <h1>Glassy panel</h1>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Palette">
+      <button type="button" data-set="theme" data-value="glacier" aria-pressed="true">Glacier</button>
+      <button type="button" data-set="theme" data-value="sunstone" aria-pressed="false">Sunstone</button>
+    </div>
+    <div class="seg" role="group" aria-label="Appearance">
+      <button type="button" data-set="appearance" data-value="light" aria-pressed="false">Light</button>
+      <button type="button" data-set="appearance" data-value="dark" aria-pressed="true">Dark</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="row">
+      <span class="gp-chip">36 % paper</span>
+      <span class="gp-chip">blur 24 / saturate 150</span>
+      <span class="gp-chip">radius 18</span>
+      <span class="gp-chip">hairline edge</span>
+    </div>
+
+    <section class="gp-card">
+      <div class="stack">
+        <h2>A card over the bloom</h2>
+        <p>Every surface here composites its own alpha over the gradient behind
+        it. The card is the spec's 36 % paper in the dark appearance and 88 % in
+        the light one.</p>
+        <div class="meta">
+          <span class="gp-chip">primary text</span>
+          <span class="gp-chip" style="color: var(--gp-muted)">secondary text</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="gp-card">
+      <div class="stack">
+        <h3>Scroll the page</h3>
+        <p>The bloom is anchored to the shell, not to the scroll container, so
+        the card drifts over a fixed gradient. That drift is what makes the
+        translucency read; a flat fill behind a blur would not move.</p>
+      </div>
+    </section>
+
+    <section class="gp-card">
+      <div class="stack">
+        <h3>Surfaces below the card</h3>
+        <p>A chip, a code block and a field, each with its own alpha and radius:</p>
+        <div class="gp-code">color-mix(in srgb, var(--gp-paper) 36%, transparent)</div>
+        <input class="gp-input" type="text" placeholder="A field that reads as editable">
+      </div>
+    </section>
+
+    <section class="gp-overlay">
+      <div class="stack">
+        <h3>Overlay</h3>
+        <p>A menu or dialog sits at 76 % in the dark appearance, 94 % in the light
+        one, with the same hairline and the same two-part shadow.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  const root = document.documentElement;
+  for (const btn of document.querySelectorAll('.seg button')) {
+    btn.addEventListener('click', () => {
+      const set = btn.dataset.set;
+      const value = btn.dataset.value;
+      root.setAttribute('data-' + set, value);
+      for (const sib of btn.parentElement.querySelectorAll('button')) {
+        sib.setAttribute('aria-pressed', String(sib === btn));
+      }
+      root.style.colorScheme = root.getAttribute('data-appearance');
+    });
+  }
+  root.style.colorScheme = root.getAttribute('data-appearance');
+</script>
+</body>
+</html>

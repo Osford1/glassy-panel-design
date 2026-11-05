@@ -1,0 +1,232 @@
+/* glass.css — the portable material layer for the glassy-panel spec.
+ *
+ * Drop this next to your CSS and define eight colour variables for your theme:
+ *
+ *   --gp-canvas   the window behind everything
+ *   --gp-paper    the surface cards sit on / are made of
+ *   --gp-input    a field that must read as editable
+ *   --gp-ink      primary text
+ *   --gp-muted    secondary text
+ *   --gp-line     boundaries that must be findable (>= 3:1)
+ *   --gp-accent   the single accent: actions, focus, active state
+ *   --gp-shell    the chrome, one step away from the canvas
+ *
+ * The defaults below are the Glacier palette, light appearance
+ * (palettes/glacier.json). Override them per theme. The material values
+ * (alphas, blurs, radii, shadows) are appearance-aware, not hue-aware: they do
+ * not change when you re-hue.
+ *
+ * Numbers come from docs/spec.md sections 3 and 5. Validate any palette you
+ * build with tools/theme-contrast-check.mjs.
+ */
+
+:root {
+  /* Palette defaults: Glacier, light appearance. */
+  --gp-canvas: #eef2f4;
+  --gp-paper: #fbfdfe;
+  --gp-input: #fbfdfe;
+  --gp-ink: #16232a;
+  --gp-muted: #48595f;
+  --gp-line: #6d818a;
+  --gp-accent: #116974;
+  --gp-shell: #dfe8ec;
+
+  /* Radius ladder (spec 5): nesting goes outside-in. */
+  --gp-radius-code: 12px;
+  --gp-radius-chip: 14px;
+  --gp-radius-card: 18px;
+  --gp-radius-input: 20px;
+
+  /* Blur, per surface (spec 3). */
+  --gp-blur-card: blur(24px) saturate(150%);
+  --gp-blur-chip: blur(12px) saturate(120%);
+  --gp-blur-input: blur(20px) saturate(130%);
+  --gp-blur-bar: blur(22px) saturate(130%);
+  --gp-blur-overlay: blur(24px) saturate(130%);
+
+  /* Light appearance: a light translucent card separates by its hairline, not
+     by value, so the alphas run high (88 % floor for cards, 88-94 % band across
+     surfaces) and the edge and shadow are harder. */
+  --gp-card-alpha: 88%;
+  --gp-chip-alpha: 92%;
+  --gp-code-alpha: 88%;
+  --gp-input-alpha: 90%;
+  --gp-bar-alpha: 94%;
+  --gp-overlay-alpha: 94%;
+
+  /* Edges: a hairline you can find (spec 3). */
+  --gp-edge: color-mix(in srgb, var(--gp-line) 70%, transparent);
+  --gp-edge-soft: color-mix(in srgb, var(--gp-paper) 55%, var(--gp-line));
+
+  /* The two-part shadow: a top-edge highlight plus depth, not a drop shadow. */
+  --gp-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--gp-paper) 90%, transparent),
+    0 10px 30px color-mix(in srgb, var(--gp-line) 22%, transparent);
+}
+
+/* Dark appearance: 36 % paper so the bloom reads through, and a softer edge. */
+[data-appearance="dark"] {
+  --gp-card-alpha: 36%;
+  --gp-chip-alpha: 45%;
+  --gp-code-alpha: 40%;
+  --gp-input-alpha: 44%;
+  --gp-bar-alpha: 72%;
+  --gp-overlay-alpha: 76%;
+
+  --gp-edge: color-mix(in srgb, var(--gp-paper) 50%, var(--gp-line));
+  --gp-edge-soft: color-mix(in srgb, var(--gp-paper) 55%, var(--gp-line));
+
+  --gp-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--gp-paper) 80%, transparent),
+    0 10px 30px color-mix(in srgb, var(--gp-shell) 34%, transparent);
+}
+
+/* ── The field: the canvas plus the bloom ─────────────────────────────────────
+   A blur over a flat fill is a flat fill, so the bloom is a gradient behind the
+   blur. The radials here are scaled to a desktop window: the spec's
+   125 %/95 %/75 % were tuned for a 320-420 px panel and wash out into a flat
+   field above ~1000 px. Going back to a narrow panel, rescale them up. */
+.gp-shell {
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--gp-canvas);
+  color: var(--gp-ink);
+}
+.gp-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(157deg, color-mix(in srgb, var(--gp-accent) 14%, transparent) 0%,
+      color-mix(in srgb, var(--gp-accent) 5%, transparent) 42%, transparent 74%),
+    radial-gradient(46% 42% at 3% -8%, color-mix(in srgb, var(--gp-accent) 26%, transparent), transparent 62%),
+    radial-gradient(42% 38% at 105% 110%, color-mix(in srgb, var(--gp-accent) 16%, transparent), transparent 64%),
+    radial-gradient(28% 26% at 90% 38%, color-mix(in srgb, var(--gp-accent) 8%, transparent), transparent 66%);
+}
+[data-appearance="dark"] .gp-shell::before {
+  background-image:
+    linear-gradient(157deg, color-mix(in srgb, var(--gp-accent) 36%, transparent) 0%,
+      color-mix(in srgb, var(--gp-accent) 11%, transparent) 42%, transparent 74%),
+    radial-gradient(46% 42% at 3% -8%, color-mix(in srgb, var(--gp-accent) 62%, transparent), transparent 62%),
+    radial-gradient(42% 38% at 105% 110%, color-mix(in srgb, var(--gp-accent) 44%, transparent), transparent 64%),
+    radial-gradient(28% 26% at 90% 38%, color-mix(in srgb, var(--gp-accent) 22%, transparent), transparent 66%);
+}
+.gp-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Surfaces ────────────────────────────────────────────────────────────────
+   The material table from spec 3, expressed as classes. Each surface
+   composites its own alpha over the bloom. */
+.gp-card,
+.gp-chip,
+.gp-bar,
+.gp-overlay,
+.gp-input,
+.gp-code {
+  -webkit-backdrop-filter: var(--gp-blur-card);
+  backdrop-filter: var(--gp-blur-card);
+}
+
+.gp-card {
+  background-color: color-mix(in srgb, var(--gp-paper) var(--gp-card-alpha), transparent);
+  -webkit-backdrop-filter: var(--gp-blur-card);
+  backdrop-filter: var(--gp-blur-card);
+  border: 1px solid var(--gp-edge);
+  border-radius: var(--gp-radius-card);
+  box-shadow: var(--gp-shadow);
+  padding: 14px 16px;
+}
+
+.gp-chip {
+  display: inline-block;
+  background-color: color-mix(in srgb, var(--gp-paper) var(--gp-chip-alpha), transparent);
+  -webkit-backdrop-filter: var(--gp-blur-chip);
+  backdrop-filter: var(--gp-blur-chip);
+  border: 1px solid var(--gp-edge-soft);
+  border-radius: var(--gp-radius-chip);
+  padding: 4px 10px;
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 0.07em;
+  color: var(--gp-muted);
+}
+
+.gp-code {
+  background-color: color-mix(in srgb, var(--gp-paper) var(--gp-code-alpha), transparent);
+  border-radius: var(--gp-radius-code);
+  padding: 10px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--gp-ink);
+  white-space: pre-wrap;
+}
+
+/* Bars carry no border on purpose: they sit flush against the window edge. */
+.gp-bar {
+  background-color: color-mix(in srgb, var(--gp-paper) var(--gp-bar-alpha), transparent);
+  -webkit-backdrop-filter: var(--gp-blur-bar);
+  backdrop-filter: var(--gp-blur-bar);
+}
+
+.gp-overlay {
+  background-color: color-mix(in srgb, var(--gp-paper) var(--gp-overlay-alpha), transparent);
+  -webkit-backdrop-filter: var(--gp-blur-overlay);
+  backdrop-filter: var(--gp-blur-overlay);
+  border: 1px solid var(--gp-edge-soft);
+  border-radius: var(--gp-radius-card);
+  box-shadow: var(--gp-shadow);
+}
+
+.gp-input {
+  width: 100%;
+  background-color: color-mix(in srgb, var(--gp-input) var(--gp-input-alpha), transparent);
+  -webkit-backdrop-filter: var(--gp-blur-input);
+  backdrop-filter: var(--gp-blur-input);
+  border: 1px solid var(--gp-edge-soft);
+  border-radius: var(--gp-radius-input);
+  padding: 10px 14px;
+  color: var(--gp-ink);
+  font: inherit;
+}
+.gp-input::placeholder {
+  color: var(--gp-muted);
+}
+
+/* ── One accent ring, never a second outline (spec 3) ──────────────────────── */
+.gp-shell :is(button, a, input, textarea, [role="button"], [role="tab"], [role="menuitem"]):focus-visible {
+  outline: none;
+  border-color: var(--gp-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gp-accent) 26%, transparent);
+}
+
+/* ── Every preference gets an answer (spec 3 accessibility fallbacks) ──────── */
+@media (prefers-reduced-transparency: reduce) {
+  .gp-card, .gp-chip, .gp-bar, .gp-overlay, .gp-input, .gp-code {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--gp-paper);
+  }
+  .gp-shell::before { background-image: none; }
+}
+
+@media (prefers-contrast: more) {
+  .gp-card, .gp-chip, .gp-bar, .gp-overlay, .gp-input, .gp-code {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--gp-paper);
+    border-color: var(--gp-line);
+  }
+  .gp-shell::before { background-image: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gp-card, .gp-chip, .gp-bar, .gp-overlay, .gp-input {
+    transition: none;
+  }
+}

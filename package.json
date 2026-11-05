@@ -1,0 +1,11 @@
+{
+  "name": "glassy-panel-design",
+  "version": "1.0.0",
+  "description": "A measured glassmorphic UI spec: CIE L* ladder, 16-pair contrast contract, two palettes, Node validator.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "check:glacier": "node tools/theme-contrast-check.mjs palettes/glacier.json",
+    "check:sunstone": "node tools/theme-contrast-check.mjs palettes/sunstone.json"
+  }
+}
