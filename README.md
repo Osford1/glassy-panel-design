@@ -166,12 +166,11 @@ switch palette and appearance with the two toggles. `examples/glass.css` is the
 material layer on its own; copy it and define the eight `--gp-*` colours for your
 theme. `examples/README.md` walks the five steps and notes one scaling caveat.
 
-![The material table: a card over the bloom, a chip, a code block, a field and an
-overlay, on the Glacier palette in the dark appearance](docs/img/glacier-dark-card-over-bloom.png)
-
-The screenshot is the default state of the page — Glacier, dark. The page also
-carries Sunstone, and a light appearance for both palettes; use the toggles in
-the header.
+The shot at the top of this page is that example's default state — Glacier, dark.
+The page also carries Sunstone and a light appearance for both palettes; use the
+two toggles in the header rather than trusting a screenshot of the other three
+states, which I could not capture honestly (the bloom does not survive a
+headless light-appearance capture, so there is no light shot here).
 
 ## The validator
 
